@@ -2,8 +2,14 @@ import userAvatar from '../../../assets/user.svg';
 import phoneIcon from '../../../assets/phone.svg';
 import Button from '../../Button/Button';
 import css from './Contact.module.css';
+import { deleteContact } from '../../../redux/contactsSlice';
+import { useDispatch } from 'react-redux';
 
-const Contact = ({ con: { name, number, id }, deleteContact }) => {
+const Contact = ({ con: { name, number, id } }) => {
+  const dispatch = useDispatch();
+  if ((!name, !number, !id)) {
+    return null;
+  }
   return (
     <li className={css.contactContainer}>
       <p className={css.contactWrap}>
@@ -30,7 +36,7 @@ const Contact = ({ con: { name, number, id }, deleteContact }) => {
       <Button
         btnName={'Delete'}
         type={'button'}
-        handleOperation={() => deleteContact(id)}
+        handleOperation={() => dispatch(deleteContact(id))}
       />
     </li>
   );

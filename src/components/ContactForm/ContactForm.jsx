@@ -1,9 +1,11 @@
-import { nanoid } from 'nanoid';
 import * as Yup from 'yup';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import Button from '../Button/Button';
 import css from './ContactForm.module.css';
 import { useId } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from '../../redux/contactsSlice';
+import { toast } from 'react-toastify';
 
 const ContactFormSchema = Yup.object().shape({
   userName: Yup.string()
@@ -23,17 +25,35 @@ const initialValues = {
   phoneNumber: '',
 };
 
-const ContactForm = ({ setContacts }) => {
+const ContactForm = () => {
   const userNameId = useId();
   const phoneNumberId = useId();
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => state.contacts.items);
 
   const handleSubmit = (values, actions) => {
     const newUser = {
       name: values.userName,
       number: values.phoneNumber,
-      id: nanoid(),
     };
-    setContacts(prev => [...prev, newUser]);
+    const isDuplicateName = contacts.some(
+      contact => contact?.name.toLowerCase() === newUser.name.toLowerCase()
+    );
+
+    if (isDuplicateName) {
+      toast(`${newUser.name} вже є у контактах!`);
+      return;
+    }
+    const isDuplicateNumber = contacts.some(
+      contact => contact?.number.trim() === newUser.number.trim()
+    );
+
+    if (isDuplicateNumber) {
+      toast(`${newUser.number} вже є у контактах!`);
+      return;
+    }
+
+    dispatch(addContact({ ...newUser }));
     actions.resetForm();
   };
 
